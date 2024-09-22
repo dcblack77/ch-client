@@ -74,7 +74,7 @@ export const menuRoutes = [
 export const routes = createBrowserRouter([
   /* {
     path: "/",
-    element: <DashboardLayout />,
+    element: <DashboardLayout />, // TODO: Create DashboardLayout component
     children: [
       ...menuRoutes.map((route) => ({
         path: route.to,
