@@ -1,0 +1,3 @@
+* - Crear componente sidebarlayout con sus rutas  
+* - crear componente de formLogin 
+* - crear componente de formRegister
