@@ -21,7 +21,7 @@ export const LoginFormComponent: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-600">
+    <div className="flex items-center justify-center min-h-screen bg-slate-100">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md space-y-6">
         <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-6">Iniciar Sesión</h2>
         
@@ -57,7 +57,7 @@ export const LoginFormComponent: React.FC = () => {
         <button 
           type="submit"
           disabled={loginMutation.isPending}
-          className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-white font-medium bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 
+          className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-white font-medium  bg-gradient-to-r from-indigo-600 to-blue-500 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 
             ${
             loginMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''
           }`}
