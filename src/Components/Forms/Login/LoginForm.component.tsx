@@ -57,7 +57,8 @@ export const LoginFormComponent: React.FC = () => {
         <button 
           type="submit"
           disabled={loginMutation.isPending}
-          className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-white font-medium bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 ${
+          className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-white font-medium bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 
+            ${
             loginMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >
