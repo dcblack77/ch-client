@@ -23,9 +23,9 @@ export const RegisterFormComponent: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-indigo-600 to-blue-500">
+    <div className="flex items-center justify-center min-h-screen bg-slate-100">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md space-y-6">
-        <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-6">Registrarse</h2>
+        <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-6">Añadir Usuario</h2>
 
         {/* DNI Field */}
         <div>

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import {FaHome, FaUser, FaBars} from 'react-icons/fa'
+import {FaHome, FaUser, FaBars, FaClock } from 'react-icons/fa'
 
 
 export const Sidebar: React.FC = () => {
@@ -34,7 +34,7 @@ export const Sidebar: React.FC = () => {
 
       {/* Logo o título del Sidebar */}
       <div className="flex items-center gap-4 px-2">
-        <FaHome size={28} />
+        <FaClock  size={28} />
         {isExpanded && <h1 className="text-2xl font-bold">Mi App</h1>}
       </div>
 
