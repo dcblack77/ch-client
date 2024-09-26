@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import {FaHome, FaUser, FaBars, FaClock } from 'react-icons/fa'
-
+import { FaHome, FaUser, FaBars, FaClock } from 'react-icons/fa';
 
 export const Sidebar: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -15,12 +14,14 @@ export const Sidebar: React.FC = () => {
   const menuItems = [
     { name: 'Inicio', icon: <FaHome />, path: '/dashboard/home' },
     { name: 'Usuarios', icon: <FaUser />, path: '/dashboard/users' },
-    // Agrega más ítems según tus rutas
+    { name: 'Registro', icon: <FaUser />, path: '/register' },
+    { name: 'Registrar Datos', icon: <FaUser />, path: '/register-data' },
+    { name: 'Login', icon: <FaUser />, path: '/login' }, // Nueva ruta añadida para Login
   ];
 
   return (
     <div
-      className={` bg-gradient-to-r from-indigo-600 to-blue-500 text-white h-screen p-4 pt-8 ${
+      className={`bg-gradient-to-r from-indigo-600 to-blue-500 text-white h-screen p-4 pt-8 ${
         isExpanded ? 'w-64' : 'w-20'
       } transition-all duration-300 relative`}
     >
@@ -34,7 +35,7 @@ export const Sidebar: React.FC = () => {
 
       {/* Logo o título del Sidebar */}
       <div className="flex items-center gap-4 px-2">
-        <FaClock  size={28} />
+        <FaClock size={28} />
         {isExpanded && <h1 className="text-2xl font-bold">Mi App</h1>}
       </div>
 
@@ -59,4 +60,3 @@ export const Sidebar: React.FC = () => {
     </div>
   );
 };
-

@@ -1,9 +1,10 @@
-// src/routes.tsx
+// src/Components/router/router.tsx
 
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { DashboardLayout } from "../Layouts/DashboardLayout";
 import { LoginFormComponent } from "../Forms/Login/LoginForm.component";
 import { RegisterFormComponent } from "../Forms/Register/RegisterForm.component";
+import { RegisterDataForm } from "../Forms/RegisterData/RegisterDataForm"; // Importa el componente
 
 // Definir las rutas internas del Dashboard
 export const dashboardRoutes = [
@@ -11,13 +12,13 @@ export const dashboardRoutes = [
     to: "/dashboard", 
     title: "Dashboard",
     description: "Panel de control",
-    component: <div>Welcome to the Dashboard!</div>, // Placeholder para la página principal
+    component: <div></div>, // Placeholder para la página principal
   },
   {
     to: "/login",
     title: "Login",
     description: "Iniciar sesión",
-    component: <LoginFormComponent />,
+    component: <LoginFormComponent />, // Componente de Login
   },
   {
     to: "/register",
@@ -25,7 +26,12 @@ export const dashboardRoutes = [
     description: "Crear cuenta",
     component: <RegisterFormComponent />,
   },
-  // Puedes añadir más rutas dentro del dashboard aquí
+  {
+    to: "/register-data", // Nueva ruta para RegisterDataForm
+    title: "Register Data",
+    description: "Registrar datos",
+    component: <RegisterDataForm />, // Componente para mostrar
+  },
 ];
 
 // Configurar las rutas de la aplicación

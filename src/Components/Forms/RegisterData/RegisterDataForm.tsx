@@ -1,29 +1,116 @@
 import React, { useState } from 'react';
 import { useRegisterHour } from './hooks/RegisterDate.hooks';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+interface PeriodData {
+  date: string;
+  timePeriod: 'morning' | 'afternoon' | 'night';
+  startHour: string;
+  endHour: string;
+  totalHours: number | undefined;
+  totalMinutes: number | undefined;
+  kilometers: number;
+  location: string;
+  isRunning: boolean;
+}
+
+interface FieldErrors {
+  date?: string;
+  startHour?: string;
+  endHour?: string;
+  kilometers?: string;
+  location?: string;
+}
 
 export const RegisterDataForm: React.FC = () => {
-  const [morningData, setMorningData] = useState({ date: '', startHour: '', endHour: '', totalHours: undefined as number | undefined, kilometers: 0, location: '', isRunning: false });
-  const [afternoonData, setAfternoonData] = useState({ date: '', startHour: '', endHour: '', totalHours: undefined as number | undefined, kilometers: 0, location: '', isRunning: false });
-  const [nightData, setNightData] = useState({ date: '', startHour: '', endHour: '', totalHours: undefined as number | undefined, kilometers: 0, location: '', isRunning: false });
+  const [morningData, setMorningData] = useState<PeriodData>({
+    date: '',
+    timePeriod: 'morning',
+    startHour: '',
+    endHour: '',
+    totalHours: undefined,
+    totalMinutes: undefined,
+    kilometers: 0,
+    location: '',
+    isRunning: false
+  });
+
+  const [afternoonData, setAfternoonData] = useState<PeriodData>({
+    date: '',
+    timePeriod: 'afternoon',
+    startHour: '',
+    endHour: '',
+    totalHours: undefined,
+    totalMinutes: undefined,
+    kilometers: 0,
+    location: '',
+    isRunning: false
+  });
+
+  const [nightData, setNightData] = useState<PeriodData>({
+    date: '',
+    timePeriod: 'night',
+    startHour: '',
+    endHour: '',
+    totalHours: undefined,
+    totalMinutes: undefined,
+    kilometers: 0,
+    location: '',
+    isRunning: false
+  });
+
+  const [errors, setErrors] = useState<{ [key: string]: FieldErrors }>({
+    morning: {},
+    afternoon: {},
+    night: {}
+  });
 
   const { mutate: registerHour, isPending } = useRegisterHour();
 
-  const handleStart = (setPeriodData: React.Dispatch<React.SetStateAction<any>>, date: string) => {
-    if (!date) {
-      alert('Por favor, seleccione una fecha antes de iniciar.');
-      return;
+  const validateField = (field: keyof PeriodData, value: any, period: string) => {
+    let error = '';
+    switch (field) {
+      case 'date':
+        if (!value) error = 'La fecha es requerida';
+        break;
+      case 'startHour':
+        if (!value) error = 'La hora de inicio es requerida';
+        break;
+      case 'endHour':
+        if (!value) error = 'La hora de fin es requerida';
+        break;
+      case 'kilometers':
+        if (value <= 0) error = 'Los kilómetros deben ser mayores a 0';
+        break;
+      case 'location':
+        if (!value) error = 'La ubicación es requerida';
+        break;
     }
-    const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setPeriodData((prevData: any) => ({ ...prevData, startHour: currentTime, isRunning: true }));
+    setErrors(prev => ({
+      ...prev,
+      [period]: { ...prev[period], [field]: error }
+    }));
+    return !error;
   };
 
-  const handleStop = (setPeriodData: React.Dispatch<React.SetStateAction<any>>, startHour: string) => {
-    if (!startHour) {
-      alert('Por favor, inicie el contador antes de detenerlo.');
+  const handleStart = (setPeriodData: React.Dispatch<React.SetStateAction<PeriodData>>, date: string, period: string) => {
+    if (!validateField('date', date, period)) {
+      toast.error('Por favor, seleccione una fecha antes de iniciar.');
       return;
     }
     const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setPeriodData((prevData: any) => ({ ...prevData, endHour: currentTime, isRunning: false }));
+    setPeriodData((prevData) => ({ ...prevData, startHour: currentTime, isRunning: true }));
+    toast.success('Contador iniciado');
+  };
+
+  const handleStop = (setPeriodData: React.Dispatch<React.SetStateAction<PeriodData>>, startHour: string, period: string) => {
+    if (!validateField('startHour', startHour, period)) {
+      toast.error('Por favor, inicie el contador antes de detenerlo.');
+      return;
+    }
+    const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setPeriodData((prevData) => ({ ...prevData, endHour: currentTime, isRunning: false }));
 
     const [startH, startM] = startHour.split(':').map(Number);
     const [endH, endM] = currentTime.split(':').map(Number);
@@ -32,25 +119,38 @@ export const RegisterDataForm: React.FC = () => {
     start.setHours(startH, startM);
     end.setHours(endH, endM);
 
-    const hoursWorked = Math.abs(end.getTime() - start.getTime()) / (1000 * 60 * 60);
-    setPeriodData((prevData: any) => ({ ...prevData, totalHours: hoursWorked }));
+    const diffMs = end.getTime() - start.getTime();
+    const diffMinutes = Math.floor(diffMs / 60000);
+    const hours = Math.floor(diffMinutes / 60);
+    const minutes = diffMinutes % 60;
+
+    setPeriodData((prevData) => ({
+      ...prevData,
+      totalHours: hours,
+      totalMinutes: minutes
+    }));
+    toast.success('Contador detenido');
   };
 
-  const handleSubmit = (period: 'morning' | 'afternoon' | 'night', data: any) => {
-    const missingFields = [];
-    if (!data.date) missingFields.push('Fecha');
-    if (!data.startHour) missingFields.push('Hora de inicio');
-    if (!data.endHour) missingFields.push('Hora de fin');
-    if (data.totalHours === undefined) missingFields.push('Total de horas');
-    if (!data.kilometers) missingFields.push('Kilómetros');
-    if (!data.location) missingFields.push('Ubicación');
+  const handleSubmit = (period: 'morning' | 'afternoon' | 'night', data: PeriodData) => {
+    const fields: (keyof PeriodData)[] = ['date', 'startHour', 'endHour', 'kilometers', 'location'];
+    const isValid = fields.every(field => validateField(field, data[field], period));
 
-    if (missingFields.length > 0) {
-      alert(`Por favor, complete los siguientes campos: ${missingFields.join(', ')}`);
+    if (!isValid) {
+      toast.error('Por favor, corrija los errores antes de enviar.');
       return;
     }
 
-    registerHour(data);
+    registerHour({
+      date: data.date,
+      timePeriod: data.timePeriod,
+      startHour: data.startHour,
+      endHour: data.endHour,
+      totalHours: data.totalHours !== undefined ? data.totalHours + (data.totalMinutes || 0) / 60 : undefined,
+      kilometers: data.kilometers,
+      location: data.location
+    });
+    toast.success('Registro enviado con éxito');
   };
 
   return (
@@ -60,6 +160,7 @@ export const RegisterDataForm: React.FC = () => {
       {['morning', 'afternoon', 'night'].map((period) => {
         const periodData = period === 'morning' ? morningData : period === 'afternoon' ? afternoonData : nightData;
         const setPeriodData = period === 'morning' ? setMorningData : period === 'afternoon' ? setAfternoonData : setNightData;
+        const periodErrors = errors[period];
 
         return (
           <div key={period} className="mb-6 pb-4 border-b">
@@ -70,16 +171,19 @@ export const RegisterDataForm: React.FC = () => {
                 <input
                   type="date"
                   value={periodData.date}
-                  onChange={(e) => setPeriodData((prevData) => ({ ...prevData, date: e.target.value }))}
-                  className="w-full p-1 text-sm border rounded"
+                  onChange={(e) => {
+                    setPeriodData((prevData) => ({ ...prevData, date: e.target.value }));
+                    validateField('date', e.target.value, period);
+                  }}
+                  className={`w-full p-1 text-sm border rounded ${periodErrors.date ? 'border-red-500' : ''}`}
                 />
+                {periodErrors.date && <p className="text-red-500 text-xs mt-1">{periodErrors.date}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Inicio</label>
                 <input
                   type="time"
                   value={periodData.startHour}
-                  onChange={(e) => setPeriodData((prevData) => ({ ...prevData, startHour: e.target.value }))}
                   className="w-full p-1 text-sm border rounded"
                   readOnly
                 />
@@ -89,17 +193,19 @@ export const RegisterDataForm: React.FC = () => {
                 <input
                   type="time"
                   value={periodData.endHour}
-                  onChange={(e) => setPeriodData((prevData) => ({ ...prevData, endHour: e.target.value }))}
                   className="w-full p-1 text-sm border rounded"
                   readOnly
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Total Horas</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tiempo Transcurrido</label>
                 <input
-                  type="number"
-                  value={periodData.totalHours || ''}
-                  onChange={(e) => setPeriodData((prevData) => ({ ...prevData, totalHours: Number(e.target.value) }))}
+                  type="text"
+                  value={
+                    periodData.totalHours !== undefined && periodData.totalMinutes !== undefined
+                      ? `${periodData.totalHours}h ${periodData.totalMinutes}m`
+                      : ''
+                  }
                   className="w-full p-1 text-sm border rounded"
                   readOnly
                 />
@@ -109,23 +215,31 @@ export const RegisterDataForm: React.FC = () => {
                 <input
                   type="number"
                   value={periodData.kilometers}
-                  onChange={(e) => setPeriodData((prevData) => ({ ...prevData, kilometers: Number(e.target.value) }))}
-                  className="w-full p-1 text-sm border rounded"
+                  onChange={(e) => {
+                    setPeriodData((prevData) => ({ ...prevData, kilometers: Number(e.target.value) }));
+                    validateField('kilometers', Number(e.target.value), period);
+                  }}
+                  className={`w-full p-1 text-sm border rounded ${periodErrors.kilometers ? 'border-red-500' : ''}`}
                 />
+                {periodErrors.kilometers && <p className="text-red-500 text-xs mt-1">{periodErrors.kilometers}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Ubicación</label>
                 <input
                   type="text"
                   value={periodData.location}
-                  onChange={(e) => setPeriodData((prevData) => ({ ...prevData, location: e.target.value }))}
-                  className="w-full p-1 text-sm border rounded"
+                  onChange={(e) => {
+                    setPeriodData((prevData) => ({ ...prevData, location: e.target.value }));
+                    validateField('location', e.target.value, period);
+                  }}
+                  className={`w-full p-1 text-sm border rounded ${periodErrors.location ? 'border-red-500' : ''}`}
                 />
+                {periodErrors.location && <p className="text-red-500 text-xs mt-1">{periodErrors.location}</p>}
               </div>
               <div>
                 <button
                   type="button"
-                  onClick={() => handleStart(setPeriodData, periodData.date)}
+                  onClick={() => handleStart(setPeriodData, periodData.date, period)}
                   className={`w-full px-2 py-1 rounded text-sm ${
                     periodData.isRunning
                       ? 'bg-gray-400 cursor-not-allowed'
@@ -139,7 +253,7 @@ export const RegisterDataForm: React.FC = () => {
               <div className="flex space-x-1">
                 <button
                   type="button"
-                  onClick={() => handleStop(setPeriodData, periodData.startHour)}
+                  onClick={() => handleStop(setPeriodData, periodData.startHour, period)}
                   className={`flex-1 px-2 py-1 rounded text-sm ${
                     !periodData.isRunning
                       ? 'bg-gray-400 cursor-not-allowed'
@@ -162,6 +276,7 @@ export const RegisterDataForm: React.FC = () => {
           </div>
         );
       })}
+      <ToastContainer />
     </div>
   );
 };
